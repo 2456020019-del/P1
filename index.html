@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm Giáo Dục Quốc Phòng & An Ninh</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #16a085;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #2c3e50;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .sticky-stats {
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            height: 10px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+
+        .score-box {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .quiz-card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+        }
+
+        .question-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .options-list {
+            list-style: none;
+        }
+
+        .option-item {
+            padding: 12px 15px;
+            border: 2px solid #eaeded;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .option-item:hover:not(.disabled) {
+            background-color: #f8f9fa;
+            border-color: #bdc3c7;
+        }
+
+        .option-item.correct {
+            background-color: #e8f8f5;
+            border-color: var(--success-color);
+            color: #196f3d;
+            font-weight: 600;
+        }
+
+        .option-item.wrong {
+            background-color: #fceae9;
+            border-color: var(--error-color);
+            color: #78281f;
+        }
+
+        .option-item.disabled {
+            cursor: not-allowed;
+        }
+
+        .status-icon {
+            margin-left: auto;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 5px;
+        }
+
+        .submit-btn:hover {
+            background-color: #34495e;
+        }
+
+        #result-modal {
+            display: none;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        #result-modal h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .score-large {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 15px 0;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .quiz-card { padding: 15px; }
+            header h1 { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>HỆ THỐNG TRẮC NGHIỆM GDQP - AN NINH</h1>
+        <p>Tài liệu ôn tập chuẩn 104 câu hỏi bộ môn</p>
+    </header>
+
+    <div class="sticky-stats">
+        <div class="score-box">Đã trả lời: <span id="answered-count">0</span>/104</div>
+        <div class="score-box">Chính xác: <span id="correct-count" style="color: var(--success-color);">0</span></div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+    </div>
+
+    <div id="quiz-container"></div>
+
+    <button class="submit-btn" onclick="finishQuiz()">NỘP BÀI & XEM KẾT QUẢ</button>
+
+    <div id="result-modal">
+        <h2>Kết Quả Làm Bài</h2>
+        <div class="score-large" id="final-score">0/104</div>
+        <p id="rank-text" style="font-size: 18px; font-weight: 500; margin-bottom: 15px;"></p>
+        <button class="submit-btn" style="background-color: var(--secondary-color); width: auto; display: inline-block; padding: 10px 30px;" onclick="window.location.reload()">Làm Lại</button>
+    </div>
+</div>
+
+<script>
+    const questionsData = [
+        { q: "Câu 1: Anh (Chị) cho biết vị trí môn học giáo dục quốc phòng và an ninh là gì?", a: "Là môn học điều kiện thuộc khối các môn học chung trong chương trình đào tạo trung cấp, cao đẳng.", b: "Là môn học bắt buộc thuộc khối các môn học chung trong chương trình đào tạo trung cấp, cao đẳng.", c: "Là môn học điều kiện, bắt buộc thuộc khối các môn học chung trong chương trình đào tạo trung cấp, cao đẳng.", d: "Cả 3 đáp án trên.", correct: "c" },
+        { q: "Câu 2: Anh (Chị) cho biết đối tượng nghiên cứu của môn học giáo dục quốc phòng - an ninh là gì?", a: "Nghiên cứu về quan điểm cơ bản có tính lí luận của Đảng về đường lối quân sự.", b: "Nghiên cứu cách xây dựng thế trận quốc phòng toàn dân gắn với thế trận an ninh nhân dân, xây dựng lực lượng vũ trang nhân dân.", c: "Nghiên cứu kiến thức cơ bản về hệ thống quân sự, rèn luyện kỹ năng quân sự, sẵn sàng tham gia bảo vệ Tổ quốc.", d: "Cả 3 đáp án trên.", correct: "d" },
+        { q: "Câu 3: Anh (Chị) cho biết quá trình nghiên cứu, phát triển tri thức quốc phòng - an ninh cần phải nắm vững và vận dụng đúng đắn các quan điểm tiếp cận khoa học nào?", a: "Quan điểm hệ thống, quan điểm lịch sử, logic, quan điểm thực tiễn.", b: "Quan điểm khách quan, quan điểm lịch sử, logic, quan điểm thực tiễn.", c: "Quan điểm khách quan, toàn diện, quan điểm lịch sử, logic, quan điểm thực tiễn.", d: "Cả 3 đáp án trên đều sai.", correct: "a" },
+        { q: "Câu 4: Anh (Chị) cho biết cơ sở phương pháp luận chung nhất của việc nghiên cứu giáo dục quốc phòng - an ninh là gì?", a: "Lý luận chủ nghĩa Mác - Lênin và tư tưởng Hồ Chí Minh.", b: "Lý luận chủ nghĩa Mác - Lênin và tư tưởng Đảng ta, đường lối, quan điểm của Đảng ta.", c: "Học thuyết Mác - Lênin và tư tưởng Hồ Chí Minh.", d: "Tư tưởng Mác - Lênin và chủ nghĩa Hồ Chí Minh.", correct: "c" },
+        { q: "Câu 5: Anh (Chị) cho biết trong nội dung giáo dục quốc phòng - an ninh với tư cách là một bộ môn khoa học cần chú ý sử dụng kết hợp mấy phương pháp nghiên cứu?", a: "2", b: "3", c: "4", d: "5", correct: "b" },
+        { q: "Câu 6: Anh (Chị) điền cụm từ thích hợp vào đáp án đúng: \"Môn học Giáo dục quốc phòng - an ninh nhằm giúp sinh viên thực hiện mục tiêu \"................................\" của công dân, đáp ứng yêu cầu của sự nghiệp xây dựng và bảo vệ Tổ quốc\".", a: "hoàn thiện và bồi dưỡng nhân cách, phẩm chất và năng lực", b: "hình thành và bồi dưỡng nhân cách, phẩm chất và năng lực", c: "hình thành và bồi dưỡng nhân cách, phẩm chất và năng lực của công dân, đáp ứng yêu cầu của sự nghiệp xây dựng mới, HĐH đất nước", d: "hình thành và bồi dưỡng nhân cách, phẩm chất và năng lực của công dân, đáp ứng yêu cầu của sự nghiệp xaay dựng và bảo vệ tổ quốc", correct: "d" },
+        { q: "Câu 7: Anh (Chị) cho biết nội dung chương trình môn học Giáo dục quốc phòng - an ninh theo Thông tư số 05/2020/TT-BGDĐT ngày 18/03/2020 cho sinh viên gồm có mấy học phần?", a: "3", b: "4", c: "5", d: "6", correct: "b" },
+        { q: "Câu 8: Anh (Chị) cho biết chương trình Giáo dục quốc phòng - an ninh trình độ trung cấp, cao đẳng ban hành theo Thông tư nào sau đây?", a: "Thông tư số 29/2012/TT-BGDĐT ngày 12 - 9 - 2012 của Bộ trưởng Bộ Giáo dục và Đào tạo.", b: "Thông tư số 30/2012/TT-BGDĐT ngày 12 - 9 - 2012 của Bộ trưởng Bộ Giáo dục và Đào tạo.", c: "Thông tư số 31/2012/TT-BGDĐT ngày 12 - 9 - 2012 của Bộ trưởng Bộ Giáo dục và Đào tạo.", d: "Thông tư số 05/2020/TT-BGDĐT ngày 18 - 03 - 2020 của Bộ trưởng Bộ Giáo dục và Đào tạo.", correct: "d" },
+        { q: "Câu 9: Anh (Chị) cho biết điều kiện nào để sinh viên được dự thi kết thúc học phần?", a: "Sinh viên có đủ số lần kiểm tra đạt từ 5 điểm trở lên và chấp hành nghiêm kỷ luật của Nhà trường.", b: "Sinh viên có đủ số lần kiểm tra; mỗi lần kiểm tra đạt từ 5 điểm trở lên và có đủ 80% thời gian có mặt trên lớp sẽ được dự thi kết thúc học phần lần thứ nhất.", c: "Có đủ 80% thời gian có mặt trên lớp và chấp hành nghiêm kỷ luật của Nhà trường.", d: "Each lần kiểm tra đạt từ 5 điểm trở lên và chấp hành nghiêm kỷ luật của Nhà trường.", correct: "b" },
+        { q: "Câu 10: Anh (Chị) cho biết sau khi học xong môn học giáo dục quốc phòng - an ninh người học cần đạt được về Kiến thức là gì?", a: "Trình bày được những nội dung cơ bản về chiến lược \"Diễn biến hoà bình\", bạo loạn lật đổ của các thế lực thù địch đối với Việt Nam; xây dựng nền quốc phòng toàn dân, an ninh nhân dân; xây dựng lực lượng vũ trang nhân dân; truyền thống đánh giặc giữ nước của dân tộc.", b: "Trình bày được một số nội dung cơ bản về dân tộc và tôn giáo; phòng chống tội phạm và tệ nạn xã hội; đường lối quan điểm của Đảng và chính sách, pháp luật của Nhà nước về bảo vệ an ninh quốc gia; bảo vệ chủ quyền lãnh thổ, biên giới quốc gia; xây dựng lực lượng vũ trang vững mạnh toàn diện tại Việt Nam.", c: "Trình bày được một số nội dung cơ bản về đội ngũ đơn vị cấp tiểu đội, trung đội; sử dụng súng, đạn và cách thức phòng tránh một số loại vũ khí thông thường; kỹ thuật cấp cứu chuyển thương; kỹ thuật bắn súng tiểu liên AK và hiểu biết về lịch sử truyền thống quân đội, công an.", d: "Cả 3 đáp án trên.", correct: "d" },
+        { q: "Câu 11: Anh (Chị) cho biết nền quốc phòng toàn dân là gì?", a: "Là sức mạnh quốc phòng của đất nước được xây dựng trên nền tảng nhân lực, vật lực, tinh thần mang tính chất toàn dân, toàn diện, độc lập, tự chủ, tự cường.", b: "Là sức mạnh quốc phòng của đất nước được xây dựng trên nền tảng nhân lực, vật lực, mang tính chất toàn dân, toàn diện, độc lập, tự cường.", c: "Là sức mạnh quốc phòng của đất nước được xây dựng trên, tinh thần mang tính chất toàn dân, toàn diện, độc lập, tự chủ.", d: "cả 3 phương án đều sai", correct: "a" },
+        { q: "Câu 12: Anh (Chị) cho biết nền an ninh nhân dân là gì?", a: "Là sự nghiệp của toàn dân, do nhân dân tiến hành, lực lượng vũ trang nhân dân (công an nhân dân) làm nòng cốt dưới sự lãnh đạo của Đảng và sự quản lý của Nhà nước.", b: "Là sự nghiệp quốc phòng toàn dân do nhân dân tiến hành dưới sự lãnh đạo của Đảng và Nhà nước, nhằm đập tan mọi âm mưu và hành động xâm lược của các thế lực thù địch để bảo vệ Tổ quốc.", c: "Là bộ phận của sức mạnh quốc phòng toàn dân có vị trí vai trò nòng cốt trong sự nghiệp bảo vệ an ninh quốc gia, có nhiệm vụ đấu tranh làm thất bại mọi âm mưu hoạt động xâm phạm an ninh quốc gia, giữ vững chủ quyền quốc gia và trật tự an toàn xã hội, bảo vệ Đảng, chính quyền, các lực lượng vũ trang và nhân dân.", d: "Cả 3 đáp án trên.", correct: "d" },
+        { q: "Câu 13: Anh (Chị) cho biết xây dựng nền quốc phòng toàn dân, an ninh nhân dân có vị trí như thế nào trong sự nghiệp xây dựng và bảo vệ Tổ quốc Việt Nam xã hội chủ nghĩa?", a: "Trọng yếu.", b: "Quan trọng, hàng đầu.", c: "Quan trọng, then chốt.", d: "Quan trọng.", correct: "c" },
+        { q: "Câu 14: Anh (Chị) cho biết công cuộc quốc phòng, an ninh, bảo vệ Tổ quốc là nhiệm vụ gì của Đảng, Nhà nước và nhân dân ta?", a: "Trọng yếu.", b: "Cơ bản, lâu dài.", c: "Trọng yếu, thường xuyên.", d: "Cả A và B đều đúng.", correct: "c" },
+        { q: "Câu 15: Anh (Chị) cho biết nền quốc phòng toàn dân, an ninh nhân dân của ta có những đặc trưng gì?", a: "Nền quốc phòng toàn dân, an ninh nhân dân chỉ có mục đích duy nhất là tự vệ chính đáng. Đó là nền quốc phòng, an ninh vì dân, của dân và vì toàn thể nhân dân Việt Nam.", b: "Nền quốc phòng toàn dân, an ninh nhân dân có mục đích duy nhất là tự vệ chính đáng. Đó là nền quốc phòng, an ninh có sức mạnh tổng hợp do nhiều yếu tố tạo thành.", c: "Đó là nền quốc phòng, an ninh vì dân, của dân và do toàn thể nhân dân tiến hành. Đó là nền quốc phòng, an ninh có sức mạnh tổng hợp do nhiều yếu tố tạo thành. Nền quốc phòng, an ninh nhân dân được xây dựng toàn diện và từng bước hiện đại.", d: "Nền quốc phòng toàn dân, an ninh nhân dân chỉ có mục đích duy nhất là tự vệ chính đáng. Đó là nền quốc phòng, an ninh vì dân, của dân và do toàn thể nhân dân tiến hành. Đó là nền quốc phòng, an ninh có sức mạnh tổng hợp do nhiều yếu tố tạo thành. Nền quốc phòng, an ninh nhân dân được xây dựng toàn diện và từng bước hiện đại.", correct: "d" },
+        { q: "Câu 16: Anh (Chị) cho biết mục đích duy nhất của nền quốc phòng toàn dân, an ninh nhân dân của ta là gì?", a: "Tự vệ chính đáng.", b: "Đánh bại mọi kẻ thù xâm lược.", c: "Bảo vệ toàn dân.", d: "Cả 3 đáp án trên", correct: "a" },
+        { q: "Câu 17: Anh (Chị) cho biết sức mạnh tổng hợp của nền quốc phòng toàn dân, an ninh nhân dân do những yếu tố nào tạo thành?", a: "Yếu tố chính trị.", b: "Yếu tố kinh tế.", c: "5 Yếu tố văn hoá tư tưởng, khoa học, quân sự.", d: "Cả 3 đáp án trên.", correct: "d" },
+        { q: "Câu 18: Anh (Chị) cho biết xây dựng nền quốc phòng, an ninh hiện đại là yêu cầu như thế nào đối với xây dựng nền quốc phòng, an ninh hiện nay?", a: "Thường xuyên, liên tục.", b: "Tất yếu khách quan.", c: "Cơ bản, thiết thực.", d: "mang tính chủ quan.", correct: "b" },
+        { q: "Câu 19: Anh (Chị) cho biết mục đích xây dựng nền quốc phòng toàn dân, an ninh nhân dân vững mạnh hiện nay?", a: "Tạo sức mạnh đáp ứng hợp của đất nước cả về chính trị, quân sự, an ninh để giữ vững hòa bình ổn định, đẩy lùi, ngăn chặn nguy cơ chiến tranh, sẵn sàng đánh thắng chiến tranh dưới mọi hình thức và quy mô.", b: "Tạo sức mạnh tổng hợp của đất nước cả về chính trị, kinh tế, quân sự, an ninh, văn hoá xã hội, khoa học, công nghệ để giữ vững hòa bình ổn định, đẩy lùi, ngăn chặn nguy cơ chiến tranh, sẵn sàng đánh thắng chiến tranh dưới mọi hình thức và quy mô.", c: "Tạo sức mạnh tổng hợp của đất nước cả về chính trị, quân sự, an ninh, kinh tế xã hội để giữ vững hòa bình ổn định, đẩy lùi, ngăn chặn nguy cơ chiến tranh, sẵn sàng đánh thắng chiến tranh dưới mọi hình thức và quy mô.", d: "Tạo sức mạnh tổng hợp của đất nước cả về chính trị, quân sự, an ninh, kinh tế, văn hoá xã hội, khoa học, công nghệ để giữ vững hòa bình ổn định, đẩy lùi, ngăn chặn nguy cơ chiến tranh, sẵn sàng đánh thắng chiến tranh dưới mọi hình thức và quy mô.", correct: "d" },
+        { q: "Câu 20: Anh (Chị) cho biết nội dung bảo vệ vững chắc độc lập chủ quyền, thống nhất, toàn vẹn lãnh thổ là gì?", a: "Bảo vệ chủ quyền đất nước, vùng trời, vùng biển, hải đảo và thềm lục địa thiêng liêng của Tổ quốc, kiên quyết đập tan mọi âm mưu và hành động xâm phạm của ngoại bang, bảo vệ sự toàn vẹn của Tổ quốc.", b: "Bảo vệ mục tiêu, con đường đi lên chủ nghĩa xã hội.", c: "Kiên quyết đấu tranh làm thất bại mọi âm mưu và hành động chống phá của các thế lực phản động ở trong nước và ngoài nước, giữ vững an ninh quốc gia.", d: "Cả 3 đáp án trên.", correct: "d" },
+        { q: "Câu 21: Anh (Chị) cho biết nội dung bảo vệ Đảng, Nhà nước, nhân dân và chế độ xã hội chủ nghĩa là gì?", a: "Bảo vệ nền tảng tư tưởng chủ nghĩa Mác - Lênin, tư tưởng Hồ Chí Minh, cương lĩnh, đường lối, nguyên tắc, Điều lệ Đảng, Bảo vệ Hiến pháp, pháp luật, tính chính danh của Nhà nước.", b: "Bảo vệ các chức Đảng, chính quyền, đoàn thể chính trị xã hội; Bảo vệ tính mạng, tài sản, quyền làm chủ của nhân dân.", c: "Kiên quyết với mục tiêu độc lập dân tộc gắn liền với chủ nghĩa xã hội mà Đảng, Bác Hồ và nhân dân ta đã lựa chọn.", d: "Cả 3 đáp án trên.", correct: "d" },
+        { q: "Câu 22: Anh (Chị) cho biết nội dung cơ bản bảo vệ lợi ích quốc gia dân tộc là gì?", a: "Bảo vệ vị thế, uy tín, quyền bình đẳng của nước ta trên trường quốc tế. Bảo vệ lợi ích quốc gia dân tộc trên tất cả các lĩnh vực và trong tất cả các mối quan hệ quốc tế. Kiên quyết đấu tranh không khoan nhượng với tất cả những lực lượng và những hành động làm tổn hại đến lợi ích quốc gia dân tộc.", b: "Bảo vệ vị thế, uy tín, quyền bình đẳng của nước ta trên trường quốc tế. Bảo vệ lợi ích quốc gia dân tộc trên tất cả các lĩnh vực và trong tất cả các mối quan hệ quốc tế. Kiên quyết đấu tranh không khoan nhượng với tất cả những lực lượng và những hành động làm tổn hại đến lợi ích quốc gia dân tộc.", c: "Bảo vệ các tổ chức Đảng, chính quyền, các đoàn thể chính trị xã hội; Bảo vệ tính mạng, tài sản, quyền làm chủ của nhân dân. Kiên quyết với mục tiêu độc lập dân tộc gắn liền với chủ nghĩa xã hội mà Đảng, Bác Hồ và nhân dân ta đã lựa chọn.", d: "Cả 3 đáp án trên.", correct: "a" },
+        { q: "Câu 23: Anh (Chị) cho biết nội dung bảo vệ nền văn hóa tiên tiến đậm đà bản sắc dân tộc là gì?", a: "Là giữ gìn, phát huy các di sản văn hóa, các giá trị văn học, nghệ thuật, thuần phong mỹ tục.", b: "Là giữ gìn, phát huy tiếng nói, chữ viết của các dân tộc.", c: "Là giữ gìn, phát huy các di sản văn hóa, các giá trị văn học, nghệ thuật, thuần phong mỹ tục; phát huy tiếng nói, chữ viết; làm phong phú thêm truyền thống, bản sắc văn hóa tốt đẹp của dân tộc ta.", d: "Cả 3 đáp án trên.", correct: "c" },
+        { q: "Câu 24: Anh (Chị) cho biết nội dung giữ vững ổn định chính trị và trật tự phát triển đất nước theo định hướng xã hội chủ nghĩa là gì?", a: "Phải bảo vệ và giữ vững môi trường ổn định chính trị và trật tự an toàn từ bên trong để phát triển kinh tế - xã hội.", b: "Xử lý nghiêm minh, kiên quyết với những người cố tình chống đối, đi ngược lại lợi ích quốc gia dân tộc.", c: "Không để xảy ra bạo loạn chính trị và \"tự diễn biến\".", d: "Cả 3 đáp án trên.", correct: "d" },
+        { q: "Câu 25: Anh (Chị) cho biết nhiệm vụ xây dựng nền quốc phòng toàn dân, an ninh nhân dân hiện nay là gì?", a: "Xây dựng lực lượng quốc phòng, an ninh đáp ứng yêu cầu bảo vệ vững chắc Tổ quốc Việt Nam xã hội chủ nghĩa. Đồng thời, xây dựng lực lượng chính trị và lực lượng vũ trang nhân dân đáp ứng yêu cầu của quốc phòng an ninh bảo vệ Tổ quốc Việt Nam xã hội chủ nghĩa.", b: "Xây dựng lực lượng quốc phòng, an ninh đáp ứng yêu cầu bảo vệ vững chắc Tổ quốc Việt Nam xã hội chủ nghĩa. Đồng thời, xây dựng thế trận quốc phòng, an ninh đáp ứng yêu cầu bảo vệ Tổ quốc Việt Nam xã hội chủ nghĩa.", c: "Xây dựng lực lượng quốc phòng, an ninh là xây dựng lực lượng chính trị và lực lượng vũ trang nhân dân đáp ứng yêu cầu của quốc phòng an ninh, bảo vệ tổ quốc VNXHCN", d: "Xây dựng lực lượng quốc phòng, an ninh đáp ứng yêu cầu bảo vệ vững chắc Tổ quốc Việt Nam xã hội chủ nghĩa;.", correct: "a" },
+        { q: "Câu 26: Anh (Chị) cho biết lực lượng quốc phòng, an ninh là những lực lượng nào?", a: "Là lực lượng Quân đội và Công an nhân dân.", b: "Những con người, tổ chức và những cơ sở vật chất, tài chính đáp ứng yêu cầu của quóc phòng an ninh", c: "Là lực lượng toàn dân, không phân biệt.", d: "Những con người, tổ chức phục vụ yêu cầu quốc phòng an ninh", correct: "b" },
+        { q: "Câu 27: Anh (Chị) cho biết nội dung cơ bản xây dựng tiềm lực quốc phòng, an ninh ngày càng vững mạnh là gì?", a: "Xây dựng tiềm lực chính trị, tinh thần và xây dựng tiềm lực kinh tế, khoa học công nghệ.", b: "Xây dựng tiềm lực chính trị, tinh thần; xây dựng tiềm lực kinh tế và tiềm lực quân sự, an ninh.", c: "Xây dựng tiềm lực chính trị, tinh thần; xây dựng tiềm lực quân sự, an ninh và tiềm lực khoa học, công nghệ.", d: "Xây dựng tiềm lực chính trị, tinh thần, kinh tế; quân sự, an ninh và tiềm lực khoa học, công nghệ.", correct: "d" },
+        { q: "Câu 28: Anh (Chị) cho biết khái niệm tiềm lực chính trị, tinh thần trong xây dựng nền quốc phòng toàn dân, an ninh nhân dân là gì?", a: "Là khả năng về chính trị, tinh thần có thể huy động tạo nên sức mạnh để thực hiện nhiệm vụ quốc phòng, an ninh.", b: "Xây dựng tiềm lực chính trị, tinh thần là nội dung quan trọng nhất của xây dựng tiềm lực quốc phòng, an ninh.", c: "Là khả năng về chính trị, tinh thần, quân sự, quốc phòng có thể tạo nên sức mạnh để thực hiện nhiệm vụ quốc phòng, an ninh.", d: "Là khả năng về chính trị, tinh thần, quân sự và xã hội có thể tạo nên sức mạnh để thực hiện nhiệm vụ quốc phòng, an ninh.", correct: "a" },
+        { q: "Câu 29: Anh (Chị) cho biết nội dung xây dựng tiềm lực chính trị, tinh thần trong xây dựng nền quốc phòng toàn dân, an ninh nhân dân là gì?", a: "Xây dựng tiềm lực kinh tế là tạo ra những cơ sở vật chất cần thiết để thực hiện các nhiệm vụ của nhà nước, đối nội với quốc tế và chủ nghĩa.", b: "Xây dựng hệ thống chính trị trong sạch vững mạnh, phát huy quyền làm chủ của nhân dân.", c: "Xây dựng khối đại đoàn kết toàn dân, nâng cao đời sống vật chất, mạng tinh thần, giữ vững ổn định chính trị, trật tự an toàn xã hội.", d: "Cả 3 đáp án trên.", correct: "d" },
+        { q: "Câu 30: Anh (Chị) cho biết khái niệm tiềm lực kinh tế trong xây dựng nền quốc phòng toàn dân, an ninh nhân dân là gì?", a: "Là khả năng về kinh tế của đất nước có thể khai thác, huy động phục vụ cho quốc phòng, an ninh.", b: "Là khả năng về kinh tế của đất nước có thể khai thác, huy động, nhằm phục vụ cho quốc phòng, an ninh.", c: "Là khả năng về kinh tế của đất nước sẵn có phục vụ cho quốc phòng, an ninh.", d: "cả 3 đáp án trên", correct: "b" },
+        { q: "Câu 31: Anh (Chị) cho biết nội dung xây dựng tiềm lực kinh tế trong xây dựng nền quốc phòng toàn dân, an ninh nhân dân ngày càng vững mạnh là gì?", a: "Đẩy mạnh công nghiệp hóa, hiện đại hóa đất nước, xây dựng nền kinh tế độc lập, tự chủ. Kết hợp chặt chẽ phát triển kinh tế - xã hội với tăng cường QP-AN; phát triển công nghiệp quốc phòng, trang bị vũ khí kỹ thuật cho Quân đội và Công an.", b: "Kết hợp xây dựng hạ tầng cơ sở kinh tế với cải thiện hạ tầng cơ sở quốc phòng, an ninh. Có kế hoạch chuyển sản xuất từ thời bình sang thời chiến và duy trì sự phát triển kinh tế.", c: "Có kế hoạch chuyển sản xuất từ thời bình sang thời chiến và duy trì sự phát triển kinh tế.", d: "Cả 3 đáp án trên.", correct: "c" },
+        { q: "Câu 32: Anh (Chị) cho biết nội dung xây dựng tiềm lực khoa học, công nghệ trong xây dựng nền quốc phòng, an ninh ngày càng vững mạnh là gì?", a: "Huy động tổng lực các khoa học, công nghệ quốc gia để khoa học quân sự, an ninh phát triển toàn diện. Đào tạo, bồi dưỡng, sử dụng có hiệu quả đội ngũ cán bộ khoa học kỹ thuật; hiện đại hóa cơ sở vật chất kỹ thuật cho nghiên cứu và sản xuất các loại vũ khí trang bị. Thực hiện tốt các chính sách đãi ngộ thỏa đáng, có chính sách thu hút đội ngũ cán bộ khoa học kỹ thuật.", b: "Phối hợp giữa các ngành khoa học trung ương và địa phương trong nghiên cứu các vấn đề về chiến lược BV Tổ quốc, xây dựng LL VT; phát triển công nghiệp quốc phòng, khoa học quân sự, an ninh, công nghệ cao.", c: "Ứng dụng, cải tiến, bảo quản, thiết kế chế tạo quân trang vũ khí; ứng dụng các thành tựu khoa học vào việc tác chiến, dự báo, thiết kế quân sự và khoa học quân sự theo hướng hiện đại hóa phù hợp với chiến trường. Nghiên cứu chiến thuật, cách đánh mới, nâng cao hiệu quả và trình độ sử dụng vũ khí, công nghệ cao.", d: "Cả 3 đáp án trên.", correct: "a" },
+        { q: "Câu 33: Anh (Chị) cho biết nội dung xây dựng thế trận quốc phòng toàn dân, an ninh nhân dân vững mạnh là gì?", a: "Xây dựng lực lượng vũ trang nhân dân vững mạnh toàn diện. Gắn quá trình công nghiệp hóa, hiện đại hóa đất nước với quá trình tăng cường vũ khí trang bị cho các lực lượng vũ trang nhân dân", b: "xây dựng đội ngũ cán bộ trong lực lượng vũ trang nhân dân dáp ứng yêu cầu nhiệm vụ bảo vệ tổ quốc trong tình hình mới. bố trí lực lượng luôn đáp ứng yêu cầu chuẩn bị cho đất nước về mọi mặt, sẵn sàng động viên thời chiến. tăng cường nghiên cứu khoa học quân sự, nghệ thuật quân sự trong chiến tranh nhân dân bảo vệ tổ quốc hiện nay và nâng cao chất lượng giáo dục quốc phòng", c: "Cả A và B đều sai", d: "Cả A và B đều đúng.", correct: "d" },
+        { q: "Câu 34: Anh (Chị) cho biết nội dung xây dựng thế trận quốc phòng toàn dân, an ninh nhân dân vững mạnh là gì?", a: "Xây dựng đội ngũ cán bộ trong lực lượng vũ trang nhân dân đáp ứng yêu cầu nhiệm vụ bảo vệ Tổ quốc trong tình hình mới. Bố trí các đơn vị quân đội và an ninh gắn với các khu vực quan trọng của đất nước về kinh tế, quốc phòng, an ninh; kết hợp xây dựng kết cấu hạ tầng với xây dựng thế trận quốc phòng, an ninh.", b: "Xây dựng hậu phương, tạo chỗ dựa vững chắc cho thế trận quốc phòng, an ninh. Xây dựng khu vực phòng thủ tỉnh, thành phố trực thuộc trung ương tạo thế liên hoàn vững chắc cho thế trận quốc phòng toàn dân gắn với thế trận an ninh nhân dân vững chắc.", c: "Triển khai các lực lượng trong thế trận. Tổ chức phòng thủ dân sự bảo đảm an toàn cho nhân dân và các công trình, mục tiêu quan trọng gắn với xây dựng hạ tầng và các công trình quốc phòng, an ninh.", d: "Cả 3 đáp án trên.", correct: "d" },
+        { q: "Câu 35: Anh (Chị) cho biết biện pháp xây dựng nền quốc phòng toàn dân, an ninh nhân dân hiện nay là gì?", a: "Thường xuyên thực hiện giáo dục quốc phòng - an ninh.", b: "Thường xuyên tổ chức bồi dưỡng cho lực lượng làm công tác giáo dục quốc phòng - an ninh.", c: "Tăng cường sự lãnh đạo của Đảng, sự quản lý của Nhà nước, trách nhiệm triển khai thực hiện của các cơ quan, tổ chức và nhân dân đối với việc xây dựng nền quốc phòng toàn dân, an ninh nhân dân.", d: "Cả 3 đáp án trên.", correct: "a" },
+        { q: "Câu 36: Anh (Chị) cho biết biện pháp xây dựng nền quốc phòng toàn dân, an ninh nhân dân hiện nay là gì?", a: "Thường xuyên thực hiện giáo dục quốc phòng - an ninh.", b: "Tăng cường sự lãnh đạo của Đảng, sự quản lý của Nhà nước, trách nhiệm triển khai thực hiện của các cơ quan, tổ chức và nhân dân đối với việc xây dựng nền quốc phòng toàn dân, an ninh nhân dân.", c: "Nâng cao ý thức, trách nhiệm của sinh viên trong việc xây dựng nền quốc phòng toàn dân, an ninh nhân dân.", d: "Cả 3 đáp án trên.", correct: "a" },
+        { q: "Câu 37: Anh (Chị) cho biết biện pháp xây dựng nền quốc phòng toàn dân, an ninh nhân dân hiện nay là gì?", a: "Thường xuyên quán triệt một số quan điểm cơ bản của chủ nghĩa Mác - Lênin, tư tưởng Hồ Chí Minh về chiến tranh, quân đội, bảo vệ Tổ quốc, quan điểm, tư tưởng cơ bản của Đảng, Nhà nước về quốc phòng, an ninh. Nhằm nâng cao nhận thức và thống nhất tư tưởng, phương pháp, quân sự cần thiết.", b: "Tăng cường sự lãnh đạo của Đảng, sự quản lý của Nhà nước, trách nhiệm triển khai thực hiện của các cơ quan, tổ chức và nhân dân đối với việc xây dựng nền quốc phòng toàn dân, an ninh nhân dân.", c: "Nâng cao ý thức, trách nhiệm công dân cho sinh viên trong xây dựng nền quốc phòng toàn dân, an ninh nhân dân", d: "Cả 3 đáp án trên.", correct: "c" },
+        { q: "Câu 38: Anh (Chị) cho biết xây dựng nền quốc phòng toàn dân, an ninh nhân dân là trách nhiệm của ai?", a: "Toàn dân.", b: "Quân đội nhân dân.", c: "Công an nhân dân.", d: "Hệ thống chính trị.", correct: "a" },
+        { q: "Câu 39: Anh (Chị) cho biết văn bản nào sau đây đề cập đến vấn đề về giáo dục quốc phòng - an ninh?", a: "Chỉ thị 12-CT/TW ngày 03/5/2007 của Bộ Chính trị và Nghị định 116/2007/NĐ-CP ngày 10/7/2007 của Thủ tướng Chính phủ.", b: "Chỉ thị 13-CT/TW ngày 03/5/2007 của Bộ Chính trị và Nghị định 117/2007/NĐ-CP ngày 10/7/2007 của Thủ tướng Chính phủ.", c: "Chỉ thị 12-CT/TW ngày 03/5/2007 của Bộ Chính trị và Nghị định 118/2007/NĐ-CP ngày 10/7/2007 của Thủ tướng Chính phủ.", d: "Chỉ thị 12-CT/TW ngày 03/5/2007 của Bộ Chính trị và Nghị định 116/2007/NĐ-CP ngày 10/7/2007 của Thủ tướng Chính phủ.", correct: "a" },
+        { q: "Câu 40: Nội dung cơ bản, quan trọng hàng đầu của phong trào toàn dân bảo vệ an ninh Tổ quốc là gì?", a: "Vận động toàn dân tham gia chương trình phòng chống tội phạm.", b: "Giáo dục nâng cao cảnh giác cách mạng, truyền thống yêu nước, đấu tranh với kẻ thù.", c: "Nâng cao cảnh giác thực hiện cho nhân dân về âm mưu, thủ đoạn của kẻ thù.", d: "Vận động nhân dân dân chấp hành nghiêm các quy định giữ gìn an ninh trật tự xã hội.", correct: "a" },
+        { q: "Câu 41: Quan điểm của Đảng ta về quần chúng nhân dân trong bảo vệ an ninh Tổ quốc là gì?", a: "Là lực lượng cách mạng đông đảo.", b: "Nền tảng của đất nước, gốc rễ của dân tộc.", c: "Động lực cho sự phát triển của xã hội.", d: "Cả 3 phương án.", correct: "d" },
+        { q: "Câu 42: Theo quan điểm của Đảng ta, tầng lớp nào là động lực cho sự phát triển của xã hội?", a: "Quần chúng nhân dân.", b: "Giai cấp công nông.", c: "Tầng lớp trí thức.", d: "Các thành phần kinh tế.", correct: "a" },
+        { q: "Câu 43: Vai trò của quần chúng nhân dân trong bảo vệ an ninh Tổ quốc là gì?", a: "Phát hiện, quản lý, giáo dục đối tượng phạm tội trong tập thể nhân dân.", b: "Phát hiện, khắc phục sơ hở thiếu sót mà địch và tội phạm có thể lợi dụng.", c: "Tham gia bảo vệ mình, tự bảo vệ mình, giữ gìn cơ quan đoàn thể; giúp cơ quan chuyên trách thực hiện nhiệm vụ.", d: "Cả 3 phương án.", correct: "d" },
+        { q: "Câu 44: Phong trào toàn dân bảo vệ an ninh Tổ quốc hoạt động theo hình thức nào?", a: "Tự giác có tổ chức.", b: "Tự phát có tổ chức và có sự chuyên môn dịch và tội phạm hay lợi dụng.", c: "Tự phát có tổ chức.", d: "Tự giác có sự tham gia của CAND.", correct: "a" },
+        { q: "Câu 45: Nhiệm vụ của phong trào toàn dân bảo vệ ANTQ là gì?", a: "Phòng ngừa, phát hiện, đấu tranh tội phạm.", b: "Giáo dục quản lý đối tượng phạm tội.", c: "Giải quyết các mâu thuẫn triệt để địa bàn.", d: "Duy trì các phong trào của Đảng, Nhà nước.", correct: "a" },
+        { q: "Câu 46: Mục tiêu của phong trào toàn dân bảo vệ ANTQ là gì?", a: "Bảo vệ an ninh chính trị, trật tự an toàn xã hội, tài sản nhà nước, tính mạng và tài sản của nhân dân.", b: "Bảo vệ ANCT, nền kinh tế, văn hóa, tính mạng, tài sản của nhân dân.", c: "Bảo vệ ANCT, quốc phòng an ninh, đối ngoại, đoàn kết các dân tộc, tôn giáo.", d: "Bảo vệ ANCT, kinh tế, văn hoá, xã hội, đoàn kết các dân tộc, các tôn giáo.", correct: "a" },
+        { q: "Câu 47: Phong trào toàn dân bảo vệ ANTQ giữ vị trí như thế nào trong sự nghiệp cách mạng?", a: "Quan trọng, không thể thiếu.", b: "Tiên phong, không thể thiếu.", c: "Trọng tâm, trọng điểm.", d: "Là nền để nhân dân làm chủ.", correct: "a" },
+        { q: "Câu 48: Phong trào toàn dân bảo vệ ANTQ có tác động như thế nào với các phong trào cách mạng khác của địa phương, đơn vị cơ quan?", a: "Khăng khít, tác động hỗ trợ lẫn nhau.", b: "Mật thiết để xây dựng KT phát triển.", c: "Chặt chẽ, gắn bó nhau.", d: "Cùng vận động ND tham gia công tác XH.", correct: "a" },
+        { q: "Câu 49: Phong trào toàn dân bảo vệ ANTQ có tác dụng như thế nào với các phong trào cách mạng khác của địa phương, mảng nhân dân?", a: "Là điều kiện phát triển các phong trào cách mạng, nhân dân.", b: "Là điều kiện thắng lợi cho phong trào đền ơn đáp nghĩa ở cơ sở.", c: "Là điều kiện thắng lợi cho phong trào xóa đói, giảm nghèo.", d: "Là điều kiện thắng lợi cho kinh tế, xã hội phát triển.", correct: "a" },
+        { q: "Câu 50: Phong trào toàn dân BVANTQ giữ vị trí như thế nào trong sự nghiệp bảo vệ ANTQ, giữ gìn TTATXH?", a: "Chiến lược, là nền tảng cơ bản.", b: "Chiến lược quan trọng, là tiền đề cơ bản.", c: "Chiến lược, là điều kiện tiên quyết.", d: "Chiến lược, là điều kiện tiên quyết.", correct: "a" },
+        { q: "Câu 51: Lực lượng nào giữ vai trò nòng cốt vận động, hướng dẫn quần chúng nhân dân thực hiện phong trào toàn dân bảo vệ ANTQ, giữ gìn TTATXH?", a: "Công an nhân dân.", b: "Lực lượng vũ trang nhân dân.", c: "Quân đội nhân dân.", d: "Lực lượng vũ trang và DQTV.", correct: "a" },
+        { q: "Câu 52: Phong trào toàn dân bảo vệ ANTQ có vai trò quan trọng như thế nào nâng cao ý thức tự giác của đại bộ phận quần chúng nhân dân?", a: "Là động lực quan trọng.", b: "Là hoạt động quan trọng.", c: "Sự hỗ trợ các lực lượng tự giác.", d: "Có lý và đạo đức của quần chúng.", correct: "a" },
+        { q: "Câu 53: Phong trào toàn dân bảo vệ ANTQ giúp lực lượng chức năng có điều kiện triển khai hiệu quả nội dung công tác nghiệp vụ cụ thể nào?", a: "Triển khai công tác sâu rộng.", b: "Triển khai đấu tranh rộng rãi.", c: "Thuận lợi vận động tuyên truyền.", d: "Thống nhất các chuyên môn, nghiệp vụ.", correct: "a" },
+        { q: "Câu 54: Hình thức hoạt động của phong trào toàn dân bảo vệ ANTQ có ý nghĩa, tác dụng như thế nào đối với nhiệm vụ bảo vệ ANTQ và TTAT xã hội?", a: "Tập hợp, thu hút, phát huy quyền làm chủ quần chúng nhân dân bảo vệ ANTQ.", b: "Tập hợp, thu hút, phát huy khả năng của quần chúng nhân dân bảo vệ ANTQ.", c: "Tập hợp lực lượng phòng ngừa, phát hiện đấu tranh trấn áp tội phạm.", d: "Tạo thế chủ động phát huy quyền làm chủ quần chúng nhân dân bảo vệ ANTQ.", correct: "a" },
+        { q: "Câu 55: Mục đích của công tác xây dựng phong trào toàn dân bảo vệ ANTQ để làm gì?", a: "Phát huy sức mạnh quần chúng bảo vệ an ninh chính trị, giữ gìn trật tự ATXH.", b: "Phòng ngừa, phát hiện và đấu tranh với âm mưu của kẻ thù.", c: "Phát huy quyền làm chủ của quần chúng nhân dân ở cơ sở.", d: "Vận động, hướng dẫn quần chúng nhân dân bảo vệ ANTQ.", correct: "a" },
+        { q: "Câu 56: Nhiệm vụ chủ yếu của phong trào bảo vệ ANTQ là gì?", a: "Phòng ngừa, phát hiện, ngăn chặn, đấu tranh với tội phạm.", b: "Tập hợp lực lượng quần chúng tham gia bảo vệ ANTQ.", c: "Tạo điều kiện để quần chúng nhân dân thực hiện quyền dân chủ, tình hình địa phương.", d: "Vận động quần chúng nhân dân tích cực tham gia bảo vệ ANTQ.", correct: "a" },
+        { q: "Câu 57: Đặc điểm của phong trào toàn dân bảo vệ ANTQ là gì?", a: "Phong trào gắn với nhiều phong trào khác của Đảng, việc thực hiện chính sách xã hội.", b: "Đối tượng tham gia đa dạng, liên quan đến nhiều người và mọi tầng lớp xã hội.", c: "Nội dung hình thức, phương pháp phong phú đa dạng, tình hình địa phương.", d: "Tất cả các phương án.", correct: "d" },
+        { q: "Câu 58: Một trong những đặc điểm của phong trào toàn dân bảo vệ ANTQ là gì?", a: "Đối tượng tham gia đa dạng, liên quan đến nhiều người và mọi tầng lớp xã hội.", b: "Sức mạnh và khả năng sáng tạo của quần chúng nhân dân là vô tận.", c: "Quần chúng nhân dân được tổ chức tham gia phong trào hoạt động có cụ thể.", d: "Quần chúng tự giác tham gia phong trào nhiều hơn, trực tiếp hơn.", correct: "a" },
+        { q: "Câu 59: Phong trào toàn dân bảo vệ ANTQ mang tính chất gì?", a: "Tính xã hội sâu sắc.", b: "Tính chính trị ổn định.", c: "Tính kinh tế to lớn.", d: "Tính nhân dân, tính dân tộc.", correct: "a" },
+        { q: "Câu 60: Phương pháp xây dựng phong trào toàn dân bảo vệ an ninh tổ quốc bao gồm?", a: "Nắm tình hình và xây dựng kế hoạch phát động phong trào toàn dân bảo vệ an ninh tổ quốc.", b: "Tuyên truyền, giáo dục và hướng dẫn quần chúng nhân dân thực hiện nhiệm vụ bảo vệ an ninh trật tự.", c: "Phối hợp chặt chẽ các lực lượng, các ngành, các cơ quan nhà nước, các tổ chức xã hội ở địa phương để tổ chức vận động toàn dân bảo vệ an ninh trật tự.", d: "Tất cả các phương án.", correct: "d" },
+        { q: "Câu 61: Yêu cầu trong công tác vận động phong trào bảo vệ ANTQ?", a: "Trang bị kiến thức chính trị, pháp luật, cảnh giác trước âm mưu, thủ đoạn của tội phạm.", b: "Phổ biến cho quần chúng nhân dân biết rõ kế hoạch của phong trào.", c: "Tuyên truyền cho quần chúng nhân dân tự giác tham gia phong trào BVANTQ.", d: "Tất cả các phương án.", correct: "d" },
+        { q: "Câu 62: Nội dung cơ bản hàng đầu trong công tác xây dựng phong trào toàn dân bảo vệ ANTQ là gì?", a: "Giáo dục cảnh giác cách mạng, truyền thống .", b: "Xây dựng và mở rộng liên kết.", c: "Xây dựng Đảng, chính quyền, đoàn thể.", d: "Vận động toàn dân tự giác phòng chống tội phạm.", correct: "a" },
+        { q: "Câu 63: Sức mạnh to lớn của quần chúng nhân dân trong nhiệm vụ bảo vệ ANTQ ở địa phương sẽ được phát huy khi nào?", a: "Quần chúng được tổ chức thành phong trào cụ thể.", b: "Cơ quan, đơn vị, địa phương, gia đình được ổn định.", c: "Nhân dân được tuyên truyền, vận động hướng dẫn.", d: "Các tổ chức Đảng, chính quyền, đoàn thể vững mạnh.", correct: "d" },
+        { q: "Câu 64: Để đề ra nội dung công tác phối hợp, hiệp đồng giữa công an với phong trào toàn dân bảo vệ ANTQ cần căn cứ vào đâu?", a: "yêu cầu, nhiệm vụ phát triển kinh tế, bảo đảm QPAN ở cơ sở.", b: "Mục tiêu xây dựng kinh tế, phát triển xã hội đơn vị ở cơ sở.", c: "Vị trí vai trò tác dụng xây dựng phong trào toàn dân BVANTQ.", d: "Tính chất, đặc điểm của địa phương nơi mình ở.", correct: "a" },
+        { q: "Câu 65: Anh (Chị) cho biết an ninh quốc gia là gì?", a: "Là sự bất khả xâm phạm độc lập, chủ quyền, thống nhất toàn vẹn lãnh thổ Tổ quốc.", b: "Là sự ổn định, phát triển bền vững của chế độ xã hội chủ nghĩa và Nhà nước, sự bất khả xâm phạm độc lập, chủ quyền, thống nhất toàn vẹn lãnh thổ của Tổ quốc.", c: "Là sự ổn định, phát triển bền vững của chế độ xã hội chủ nghĩa và Nhà nước Việt Nam; sự ổn định của hệ thống chính trị, thống nhất toàn vẹn lãnh thổ của Tổ quốc.", d: "Là sự ổn định, phát triển bền vững của chế độ xã hội chủ nghĩa và Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam, sự bất khả xâm phạm độc lập, chủ quyền, thống nhất toàn vẹn lãnh thổ của Tổ quốc.", correct: "d" },
+        { q: "Câu 66: Anh (Chị) cho biết bảo vệ an ninh quốc gia là gì?", a: "Phòng ngừa và đấu tranh với các hoạt động xâm phạm an ninh quốc gia.", b: "Phòng ngừa, phát hiện, ngăn chặn, đấu tranh làm thất bại các hoạt động xâm phạm an ninh quốc gia.", c: "Phát hiện, ngăn chặn đấu tranh với các hoạt động xâm phạm an ninh quốc gia.", d: "Phòng ngừa, phát hiện, ngăn chặn, đấu tranh về tội phạm KT và chức vụ", correct: "b" },
+        { q: "Câu 67: Anh (Chị) cho biết những thuận lợi trong công tác bảo vệ an ninh quốc gia, giữ gìn trật tự an toàn xã hội là gì?", a: "Tiềm lực và vị thế quốc tế của nước ta được tăng cường.", b: "Đặng Cộng sản Việt Nam có bản lĩnh chính trị vững vàng, có kinh nghiệm và đường lối lãnh đạo đúng đắn.", c: "Nhân dân Việt Nam có truyền thống yêu nước đoàn kết, tin tưởng vào Đảng.", d: "Cả 3 phương án trên.", correct: "d" },
+        { q: "Câu 68: Anh (Chị) cho biết mục tiêu quan trọng về bảo vệ an ninh quốc gia là gì?", a: "Là các cơ quan ban ngành từ trung ương đến địa phương.", b: "Là các công trình quan trọng về quốc phòng an ninh.", c: "Là những đối tượng, địa điểm, công trình, cơ sở về chính trị, an ninh, quốc phòng, kinh tế, xã hội.", d: "Là các mục tiêu trọng điểm, các cơ sở về chính trị, quốc phòng, kinh tế, khoa học kỹ thuật văn hoá xã hội", correct: "c" },
+        { q: "Câu 69: Anh (Chị) cho biết đâu là nhiệm vụ bảo vệ an ninh quốc gia?", a: "Bảo vệ bí mật nhà nước và các mục tiêu quan trọng về an ninh quốc gia.", b: "Bảo vệ vững chắc công trình điểm quốc gia quan trọng, trên biển và trên đất liền...", c: "Bảo vệ an ninh hiện giới, phối hợp có hiệu quả với các bộ, ngành về an ninh quốc gia phòng và an ninh đối nội đối ngoại.", d: "Bảo vệ sự an nguy của đất nước và các mục tiêu quan trọng về an ninh của các địa phương các bộ, ngành", correct: "a" },
+        { q: "Câu 70: Anh (Chị) cho biết nguyên tắc bảo vệ an ninh quốc gia?", a: "Tuân thủ Hiến pháp pháp luật; bảo đảm lợi ích của Nhà nước, quyền và lợi ích hợp pháp của tổ chức, cá nhân.", b: "Đặt dưới sự lãnh đạo của Đảng Cộng sản Việt Nam, sự quản lý thống nhất của Nhà nước; huy động sức mạnh tổng hợp của hệ thống chính trị và toàn dân, lực lượng chuyên trách làm nòng cốt; kết hợp chặt chẽ giữa nhiệm vụ bảo vệ an ninh quốc gia với nhiệm vụ phát triển kinh tế, văn hoá, xã hội.", c: "Chủ động phòng ngừa, đấu tranh làm thất bại mọi âm mưu và hoạt động xâm phạm an ninh quốc gia.", d: "Cả 3 phương án trên.", correct: "d" },
+        { q: "Câu 71: Anh (Chị) cho biết biện pháp bảo vệ an ninh quốc gia là gì?", a: "Vận động quần chúng, pháp luật, ngoại giao, kinh tế, khoa học kỹ thuật, nghiệp vụ, vũ trang.", b: "Vận động quần chúng, pháp luật, luật ngoại giao, kinh tế, khoa học kỹ thuật, nghệ thuật quân sự, vũ trang.", c: "Vận động quần chúng, pháp luật, luật ngoại giao, kinh tế, kỹ thuật hình sự, gián điệp, vũ trang.", d: "Vận động quần chúng, pháp luật, ngoại giao, an ninh tư tưởng văn hoá, nghiệp vụ, vũ trang", correct: "a" },
+        { q: "Câu 72: Anh (Chị) cho biết lực lượng chuyên trách bảo vệ an ninh quốc gia là gì?", a: "Quân đội, công an, biên phòng và các lực lượng vũ trang.", b: "Quân đội, công an, bộ đội biên phòng và cảnh sát biển.", c: "Quân đội, công an, lực lượng bộ đội biên phòng.", d: "Quân đội, công an, bộ đội biên phòng và lực lượng an ninh.", correct: "b" },
+        { q: "Câu 73: Anh (Chị) cho biết đối tượng đấu tranh trong công tác bảo vệ an ninh quốc gia là gì?", a: "Bảo vệ an ninh chính trị nội bộ.", b: "Bảo vệ đội ngũ cán bộ, các nhà khoa học.", c: "Bọn lợi dụng dân tộc, tôn giáo và bọn cơ hội bất mãn.", d: "Bảo vệ văn hoá sắc tộc dân tộc bảo tồn.", correct: "a" },
+        { q: "Câu 74: Anh (Chị) cho biết đối tượng đấu tranh trong công tác bảo vệ an ninh quốc gia là gì?", a: "Gián điệp, phản động.", b: "Các tổ chức phản động ở nước ngoài.", c: "Bọn lợi dụng dân tộc, tôn giáo và bọn cơ hội bất mãn", d: "Cả 3 phương án trên.", correct: "d" },
+        { q: "Câu 75: Anh (Chị) cho biết nội dung giữ gìn trật tự an toàn xã hội là gì?", a: "Đấu tranh có hiệu quả với phản động ở trong nước.", b: "Đấu tranh phòng chống tội phạm.", c: "Đấu tranh chống gián điệp quốc tế ngoài nước.", d: "Đấu tranh với các đối tượng xâm phạm trật tự an toàn xã hội.", correct: "d" },
+        { q: "Câu 76: Anh (Chị) cho biết phương châm công tác trong bảo vệ an ninh quốc gia và giữ gìn trật tự an toàn xã hội là gì?", a: "Phát huy vai trò trách nhiệm của quần chúng nhân dân trong công tác bảo vệ an ninh quốc gia và giữ gìn trật tự an toàn xã hội.", b: "Phát huy vai trò tác dụng của hội đồng nhân dân và ủy ban nhân dân trong công tác bảo vệ an ninh quốc gia và giữ gìn trật tự an toàn xã hội.", c: "Phát huy sức mạnh tổng hợp của cả hệ thống chính trị, của toàn dân dưới sự lãnh đạo của Đảng, sự quản lý của nhà nước, trong đó công an là lực lượng nòng cốt trong sự nghiệp bảo vệ an ninh quốc gia và giữ gìn trật tự an toàn xã hội.", d: "Phát huy trách nhiệm của các cơ quan nhà nước, các tổ chức đoàn thể trong công tác bảo vệ an ninh quốc gia và giữ gìn trật tự an toàn xã hội", correct: "c" },
+        { q: "Câu 77: Anh (Chị) cho biết đối tượng đấu tranh trong công tác giữ gìn trật tự an toàn xã hội là gì?", a: "Các đối tượng xâm phạm trật tự an toàn xã hội.", b: "Các đối tượng xâm phạm trật tự an quản lý kinh tế và chức vụ.", c: "Các đối tượng ma túy", d: "Cả 3 phương án trên.", correct: "d" },
+        { q: "Câu 78: Lực lượng nòng cốt trong bảo vệ an ninh quốc gia và giữ gìn trật tự an toàn xã hội là lực lượng nào?", a: "Bộ đội.", b: "Công an.", c: "Dân quân tự vệ.", d: "Cảnh sát biển.", correct: "b" },
+        { q: "Câu 79: Những khó khăn trong công tác bảo vệ an ninh quốc gia, giữ gìn trật tự an toàn xã hội là gì?", a: "Các yếu tố kém trong công tác xây dựng Đảng, xây dựng hệ thống chính trị, các vấn đề kinh tế, xã hội bức xúc, mâu thuẫn trong nội bộ nhân dân...", b: "Các thế lực thù địch đang dùng chiến lược \"Diễn biến hòa bình\", bạo loạn lật đổ chống phá cách mạng nước ta.", c: "Hoạt động xâm phạm độc lập, chủ quyền, toàn vẹn lãnh thổ nhà nước và an ninh diễn biến cực kỳ phức tạp, đặc biệt trên Biển Đông.", d: "Cả 3 phương án trên.", correct: "d" },
+        { q: "Câu 80: Anh (Chị) cho biết trật tự an toàn xã hội là gì?", a: "Trật tự an toàn xã hội là trạng thái xã hội trong đó mọi người được sống bình yên trên các quy phạm pháp luật.", b: "Trật tự an toàn xã hội là trạng thái xã hội trong đó mọi người được sống bình yên dựa trên các quy định pháp luật.", c: "Trật tự an toàn xã hội là trạng thái xã hội bình yên, trong đó mọi người được sống bình yên dựa trên các quy định của các quy phạm pháp luật.", d: "là trạng thái xã hội không bình yên, trong đó mọi người được sống trên cơ sở các quy định của pháp luật", correct: "c" },
+        { q: "Câu 81: Anh (Chị) cho biết đấu tranh giữ gìn trật tự an toàn xã hội bao gồm những nội dung gì?", a: "Chống tội phạm.", b: "Giữ gìn trật tự nơi công cộng.", c: "Bảo đảm trật tự an toàn giao thông.", d: "Cả 3 phương án trên.", correct: "d" },
+        { q: "Câu 82: Anh (Chị) cho biết quan điểm của Đảng và Nhà nước ta về đối tác?", a: "Những ai chủ trương tôn trọng độc lập, chủ quyền, thiết lập và mở rộng quan hệ hữu nghị hợp tác bình đẳng, cùng có lợi với Việt Nam", b: "Những ai tôn trọng độc lập, thiết lập và mở rộng quan hệ hữu nghị và hợp tác bình đẳng, cùng có lợi với Việt Nam.", c: "Những ai chủ trương tôn trọng chủ quyền, thiết lập và mở rộng quan hệ hữu nghị, hợp tác bình đẳng, cùng có lợi với Việt Nam.", d: "Những ai chủ trương, thiết lập và mở rộng quan hệ hữu nghị hợp tác bình đẳng, cùng có lợi với Việt Nam", correct: "a" },
+        { q: "Câu 83: Anh (Chị) cho biết quan điểm của Đảng và Nhà nước ta về đối tượng?", a: "Bất kể thế lực nào có âm mưu chống phá mục tiêu của nước ta trong sự nghiệp xây dựng và bảo vệ Tổ quốc.", b: "Bất kể thế lực nào có âm mưu và hành động chống phá mục tiêu của nước ta trong sự nghiệp xây dựng và bảo vệ Tổ quốc.", c: "Bất kể thế lực nào có hành động chống phá mục tiêu của nước ta trong sự nghiệp xây dựng và bảo vệ Tổ quốc.", d: "Bất kể thế lực nào có âm mưu và hành động chống phá mục tiêu của nước ta trong sự nghiệp bảo vệ Tổ quốc.", correct: "b" },
+        { q: "Câu 84: Anh (Chị) cho biết tệ nạn xã hội là gì?", a: "Là hiện tượng xã hội bao gồm những hành vi đúng chuẩn mực xã hội, có tính phổ biến ảnh hưởng tới đạo đức và gây hậu quả nghiêm trọng trong đời sống cộng đồng.", b: "Là hiện tượng xã hội bao gồm những hành vi ít sai lệch chuẩn mực xã hội, có tính phổ biến ảnh hưởng tới đạo đức và gây hậu quả nghiêm trọng trong đời sống cộng đồng.", c: "Là hiện tượng xã hội bao gồm những hành vi sai lệch chuẩn mực xã hội, có tính phổ biến ảnh hưởng tới đạo đức và gây hậu quả nghiêm trọng trong đời sống cộng đồng.", d: "Là hiện tượng xã hội bao gồm những hành vi sai phạm chuẩn mực xã hội, có tính phổ biến ảnh hưởng tới đạo đức và gây hậu quả nghiêm trọng trong đời sống cộng đồng.", correct: "c" },
+        { q: "Câu 85: Anh (Chị) cho biết theo quan điểm của Chủ nghĩa Mác - Lênin chiến tranh là gì?", a: "Là hiện tượng chính trị xã hội có tính lịch sử.", b: "Là cuộc đấu tranh vũ trang có tổ chức giữa các giai cấp, nhà nước.", c: "Nhằm đạt mục đích chính trị nhất định.", d: "Cả A,B,C đều đúng.", correct: "d" },
+        { q: "Câu 86: Anh (Chị) cho biết theo quan điểm của Chủ nghĩa Mác - Lênin nguồn gốc nào sinh ra chiến tranh?", a: "Sự bùng nổ dân số.", b: "Chế độ tư hữu về tư liệu sản xuất và đối kháng giai cấp.", c: "Bản năng sinh vật của con người.", d: "Do định mệnh của loài người.", correct: "b" },
+        { q: "Câu 87: Anh (Chị) cho biết theo quan điểm của Chủ nghĩa Mác - Lênin nguồn gốc sâu xa sinh ra chiến tranh?", a: "Sự bùng nổ dân số.", b: "Do định mệnh của loài người.", c: "Bản năng sinh vật của con người.", d: "Sự xuất hiện và tồn tại của chế độ tư hữu về tư liệu sản xuất.", correct: "d" },
+        { q: "Câu 88: Anh (Chị) cho biết theo quan điểm của Chủ nghĩa Mác - Lênin có mấy nguồn gốc sinh ra chiến tranh?", a: "2", b: "3", c: "4", d: "5", correct: "a" },
+        { q: "Câu 89: Anh (Chị) cho biết theo quan điểm của Chủ nghĩa Mác - Lênin bản chất của Chiến tranh là gì?", a: "Là bạo lực của các giai cấp cầm quyền.", b: "Là nhiệm vụ bảo vệ Tổ quốc.", c: "Là lực lượng nòng cốt cho toàn dân đánh giặc.", d: "Là sự tiếp tục của chính trị bằng bằng những biện pháp khác (cụ thể là bằng bạo lực)", correct: "d" },
+        { q: "Câu 90: Anh (Chị) cho biết theo quan điểm của Chủ nghĩa Mác - Lênin quân đội là gì?", a: "Là công cụ bạo lực của một giai cấp cầm quyền.", b: "Là lực lượng duy nhất có nhiệm vụ bảo vệ Tổ quốc.", c: "Là một tập đoàn người vũ trang, có tổ chức do một nhà nước xây dựng.", d: "Là lực lượng phòng thủ dân sự.", correct: "c" },
+        { q: "Câu 91: Anh (Chị) cho biết theo quan điểm của Chủ nghĩa Mác - Lênin nguồn gốc ra đời của quân đội?", a: "Sự bùng nổ dân số.", b: "Do xã hội có đối kháng giai cấp.", c: "Chế độ tư hữu về tư liệu sản xuất và phân chia xã hội thành giai cấp đối kháng.", d: "Do định mệnh của loài người.", correct: "c" },
+        { q: "Câu 92: Anh (Chị) cho biết theo quan điểm của Chủ nghĩa Mác - Lênin bản chất giai cấp của quân đội?", a: "Là công cụ bạo lực vũ trang của một giai cấp, nhà nước nhất định.", b: "Là lực lượng duy nhất có nhiệm vụ bảo vệ Tổ quốc.", c: "Là lực lượng nòng cốt cho toàn dân đánh giặc.", d: "Là công cụ bạo lực vũ trang của một giai cấp, nhà nước nhất định.", correct: "d" },
+        { q: "Câu 93: Anh (Chị) cho biết Hồ Chí Minh đã khái quát bản chất của chủ nghĩa đế quốc bằng hình ảnh gì?", a: "Con bạch tuộc hút máu.", b: "Con vòi vòi hút máu.", c: "Con đỉa biết hút máu.", d: "Con đỉa hai vòi.", correct: "d" },
+        { q: "Câu 94: Anh (Chị) cho biết Hồ Chí Minh đã xác định tính chất xã hội của chiến tranh là gì?", a: "Chiến tranh chống xâm lược là chính nghĩa, chiến tranh xâm lược là phi nghĩa.", b: "Chiến tranh chống bạo lực cách mạng.", c: "Chiến tranh chống bạo lực phản cách mạng.", d: "Là chiến tranh toàn dân, lực lượng vũ trang là nòng cốt.", correct: "a" },
+        { q: "Câu 95: Anh (Chị) cho biết theo tư tưởng Hồ Chí Minh về tính chất giải phóng dân tộc của nhân dân ta là?", a: "Chiến tranh chống xâm lược là chính nghĩa.", b: "Chiến tranh nhân dân dưới sự lãnh đạo của Đảng Cộng sản Việt Nam.", c: "Cuộc chiến tranh chống bạo lực cách mạng.", d: "Cuộc chiến tranh toàn dân, lực lượng vũ trang là nòng cốt.", correct: "b" },
+        { q: "Câu 96: Anh (Chị) cho biết tư tưởng Hồ Chí Minh về quá trình thành lập Quân đội ta luôn luôn gắn liền với?", a: "Chiến tranh chống xâm lược, dưới sự lãnh đạo của Đảng Cộng sản Việt Nam.", b: "Chiến tranh nhân dân dưới sự lãnh đạo của Đảng Cộng sản Việt Nam.", c: "Phong trào cách mạng của quần chúng, với các cuộc chiến tranh giải phóng dân tộc, bảo vệ Tổ quốc XHCN.", d: "Cuộc chiến tranh nhân dân, toàn dân toàn diện.", correct: "c" },
+        { q: "Câu 97: Anh (Chị) cho biết bản chất của Quân đội nhân dân Việt Nam?", a: "Quân đội nhân dân Việt Nam mang bản chất của giai cấp công nhân Việt Nam.", b: "Quân đội nhân dân Việt Nam mang bản chất của nhân dân lao động Việt Nam.", c: "Quân đội nhân dân Việt Nam mang bản chất của các tầng lớp nhân dân Việt Nam.", d: "Quân đội nhân dân Việt Nam mang bản chất của đội ngũ tri thức Việt NAm", correct: "a" },
+        { q: "Câu 98: Anh (Chị) cho biết theo quan điểm chủ nghĩa Mác - Lênin về bảo vệ Tổ quốc xã hội chủ nghĩa (XHCN)?", a: "Bao vệ Tổ quốc XHCN là một tất yếu khách quan.", b: "Bảo vệ Tổ quốc XHCN là nghĩa vụ, trách nhiệm của toàn dân tộc, của toàn thế giới kết hợp với sức mạnh thời đại.", c: "Bảo vệ Tổ quốc XHCN phải thường xuyên tăng cường tiềm lực quốc phòng gắn với phát triển kinh tế xã hội.", d: "Cả A,B,C đều đúng.", correct: "d" },
+        { q: "Câu 99: Anh (Chị) cho biết tư tưởng Hồ Chí Minh về bảo vệ Tổ quốc XHCN?", a: "Mục tiêu bảo vệ Tổ quốc là độc lập dân tộc và CNXH, là nghĩa vụ và trách nhiệm của mỗi công dân.", b: "Sức mạnh bảo vệ Tổ quốc là sức mạnh tổng hợp của cả dân tộc, của cả nước, kết hợp với sức mạnh thời đại.", c: "Đảng Cộng sản Việt Nam lãnh đạo sự nghiệp bảo vệ Tổ quốc Việt Nam XHCN.", d: "Cả A,B,C đều đúng.", correct: "d" },
+        { q: "Câu 100: Anh (Chị) cho sinh viên có mấy trách nhiệm trong học tập và sau khi hoàn thành khóa học giáo dục QP, AN?", a: "3", b: "5", c: "6", d: "7", correct: "c" },
+        { q: "Câu 101: Chọn câu trả lời sai. Tư tưởng Hồ Chí Minh về bảo vệ Tổ quốc XHCN?", a: "Bảo vệ Tổ quốc là tất yếu khách quan.", b: "Mục tiêu là bảo vệ độc lập dân tộc và CNXH.", c: "Bảo vệ Tổ quốc là trách nhiệm của quân đội và công an.", d: "Bảo vệ Tổ quốc là trách nhiệm của mỗi công dân.", correct: "c" },
+        { q: "Câu 102: Anh (Chị) cho biết theo tư tưởng Hồ Chí Minh về Mục tiêu bảo vệ Tổ quốc là của ai?", a: "Là nghĩa vụ và trách nhiệm của mỗi công dân.", b: "Là của Quân đội nhân dân và Công an nhân dân.", c: "Là của lực lượng vũ trang nhân dân.", d: "Cả A,B,C đều đúng.", correct: "a" },
+        { q: "Câu 103: Anh (Chị) cho biết câu nói \"Các vua Hùng đã có công dựng nước, Bác cháu ta phải cùng nhau giữ lấy nước\" là của ai, nói vào thời gian nào?", a: "Của Chủ tịch Hồ Chí Minh, nói vào ngày 19/12/1947.", b: "Của Chủ tịch Tôn Đức Thắng, nói vào ngày 19/12/1946.", c: "Của Chủ tịch Hồ Chí Minh, nói vào ngày 19/12/1946.", d: "Của Chủ tịch Hồ Chí Minh, nói vào ngày 19/9/1954.", correct: "c" }, // Đính chính đáp án đúng lịch sử thực tế là 19/12/1946 tương ứng đáp án C.
+        { q: "Câu 104: Anh (Chị) cho biết vai trò lãnh đạo trong bảo vệ Tổ quốc xã hội chủ nghĩa thuộc về tổ chức nào?", a: "Các đoàn thể, các tổ chức chính trị xã hội.", b: "Quân chủng nhân dân.", c: "Đảng Cộng sản Việt Nam.", d: "Hệ thống chính trị.", correct: "c" }
+    ];
+
+    let answeredQuestions = new Set();
+    let correctAnswersCount = 0;
+
+    function renderQuiz() {
+        const container = document.getElementById('quiz-container');
+        questionsData.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card';
+            card.id = `question-${index}`;
+
+            const qTitle = document.createElement('div');
+            qTitle.className = 'question-title';
+            qTitle.innerText = item.q;
+            card.appendChild(qTitle);
+
+            const optionsList = document.createElement('ul');
+            optionsList.className = 'options-list';
+
+            ['a', 'b', 'c', 'd'].forEach(optionLetter => {
+                if(item[optionLetter]) {
+                    const li = document.createElement('li');
+                    li.className = 'option-item';
+                    li.innerHTML = `<strong>${optionLetter.toUpperCase()}.</strong> &nbsp; ${item[optionLetter]} <span class="status-icon"></span>`;
+                    li.onclick = () => selectOption(index, optionLetter, li);
+                    optionsList.appendChild(li);
+                }
+            });
+
+            card.appendChild(optionsList);
+            container.appendChild(card);
+        });
+    }
+
+    function selectOption(qIndex, choice, selectedLi) {
+        if (answeredQuestions.has(qIndex)) return; 
+
+        answeredQuestions.add(qIndex);
+        const currentQuestion = questionsData[qIndex];
+        const card = document.getElementById(`question-${qIndex}`);
+        const allOptions = card.querySelectorAll('.option-item');
+
+        allOptions.forEach(li => li.classList.add('disabled'));
+
+        if (choice === currentQuestion.correct) {
+            selectedLi.classList.add('correct');
+            selectedLi.querySelector('.status-icon').innerText = '✓ Đúng';
+            correctAnswersCount++;
+        } else {
+            selectedLi.classList.add('wrong');
+            selectedLi.querySelector('.status-icon').innerText = '✗ Sai';
+            
+            allOptions.forEach(li => {
+                if (li.innerText.startsWith(currentQuestion.correct.toUpperCase())) {
+                    li.classList.add('correct');
+                    li.querySelector('.status-icon').innerText = '✓ Đáp án đúng';
+                }
+            });
+        }
+
+        updateStats();
+    }
+
+    function updateStats() {
+        const total = questionsData.length;
+        const answered = answeredQuestions.size;
+        document.getElementById('answered-count').innerText = answered;
+        document.getElementById('correct-count').innerText = correctAnswersCount;
+        
+        const progressPercentage = (answered / total) * 100;
+        document.getElementById('progress').style.width = `${progressPercentage}%`;
+    }
+
+    function finishQuiz() {
+        const total = questionsData.length;
+        document.getElementById('final-score').innerText = `${correctAnswersCount}/${total}`;
+        
+        let rank = "";
+        const scoreRatio = correctAnswersCount / total;
+        if(scoreRatio >= 0.9) rank = "Xuất sắc! Bạn đã nắm cực vững kiến thức GDQP!";
+        else if(scoreRatio >= 0.8) rank = "Giỏi! Kết quả rất tốt.";
+        else if(scoreRatio >= 0.65) rank = "Khá. Hãy cố gắng phát huy thêm nhé.";
+        else if(scoreRatio >= 0.5) rank = "Trung bình. Bạn cần ôn luyện kỹ hơn.";
+        else rank = "Chưa đạt! Hãy xem lại tài liệu và thử lại.";
+
+        document.getElementById('rank-text').innerText = rank;
+        
+        const modal = document.getElementById('result-modal');
+        modal.style.display = 'block';
+        modal.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Khởi chạy ứng dụng
+    window.onload = renderQuiz;
+</script>
+
+</body>
+</html>
